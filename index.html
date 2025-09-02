@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark light">
+    <title>RedStar Club</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23e11d48' d='M32 4l6.95 14.09L54 20.36 42.98 31.1 45.24 46 32 38.73 18.76 46 21.02 31.1 10 20.36l15.05-2.27z'/%3E%3C/svg%3E">
+</head>
+<body class="purple-bg">
+    <main class="page">
+        <header class="header">
+            <div class="logo" aria-label="RedStar Club logo" role="img">
+                <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path fill="#e11d48" d="M32 4l6.95 14.09L54 20.36 42.98 31.1 45.24 46 32 38.73 18.76 46 21.02 31.1 10 20.36l15.05-2.27z"/>
+                </svg>
+                <span class="club-name">RedStar Club</span>
+                <button class="login-btn login-red" onclick="window.location.href='docs.html'" aria-label="Docs">Docs</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px">
+              <button class="login-btn login-red" onclick="window.location.href='login.html'" aria-label="Log in">Log in</button>
+              <button class="register-btn" onclick="window.location.href='register.html'" aria-label="Register">Register</button>
+            </div>
+        </header>
+
+        <section class="hero" aria-labelledby="greeting">
+            <h1 id="greeting">Welcome to the Club</h1>
+            <p class="subtitle">Members, friends, and future teammates — good to see you.</p>
+        </section>
+
+        <section class="content-grid" aria-labelledby="pets">
+            <div class="panel">
+                <h2 id="pets">Cat</h2>
+                <img id="cat-img" src="https://mimo.app/i/cat.png" alt="Cute cat" style="width:100%;height:auto;border-radius:10px;border:1px solid rgba(255,255,255,.08)">
+            </div>
+            <div class="panel">
+                <h2>Dog</h2>
+                <img id="dog-img" src="https://images.dog.ceo/breeds/hound-basset/n02088238_11136.jpg" alt="Dog" style="width:100%;height:auto;border-radius:10px;border:1px solid rgba(255,255,255,.08)">
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <small>© <span id="year"></span> RedStar Club</small>
+    </footer>
+
+    <script>
+    // Keep JS inline and tiny for this simple page
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Match cat image height to dog image height without changing dog
+    function syncCatHeight(){
+      var cat = document.getElementById('cat-img');
+      var dog = document.getElementById('dog-img');
+      if(!cat || !dog) return;
+      var h = dog.clientHeight;
+      if(h > 0){
+        cat.style.height = h + 'px';
+        cat.style.objectFit = 'cover';
+      }
+    }
+
+    window.addEventListener('load', syncCatHeight);
+    window.addEventListener('resize', syncCatHeight);
+    // Also resync when images load individually
+    var d = document.getElementById('dog-img');
+    var c = document.getElementById('cat-img');
+    if(d) d.addEventListener('load', syncCatHeight);
+    if(c) c.addEventListener('load', syncCatHeight);
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark light">
+    <title>Home · RedStar Club</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23e11d48' d='M32 4l6.95 14.09L54 20.36 42.98 31.1 45.24 46 32 38.73 18.76 46 21.02 31.1 10 20.36l15.05-2.27z'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <style>
+        .panel {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .panel.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .panel:nth-child(1) { transition-delay: 0.1s; }
+        .panel:nth-child(2) { transition-delay: 0.3s; }
+        .panel:nth-child(3) { transition-delay: 0.5s; }
+        .panel:nth-child(4) { transition-delay: 0.7s; }
+        .panel:nth-child(5) { transition-delay: 0.9s; }
+        .panel:nth-child(6) { transition-delay: 1.1s; }
+        
+        .panel.hide {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+            max-height: 0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .hide-btn {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.15);
+            color: var(--muted);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .hide-btn:hover {
+            background: rgba(255,255,255,.12);
+            border-color: rgba(255,255,255,.25);
+            color: var(--text);
+        }
+        
+        /* Custom toastr styling for dark theme */
+        #toast-container > .toast {
+            background-color: rgba(30, 30, 30, 0.95);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        #toast-container > .toast.toast-success {
+            background-color: rgba(34, 197, 94, 0.95);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        
+        #toast-container > .toast .toast-title {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        #toast-container > .toast .toast-message {
+            color: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body class="purple-bg">
+    <main class="page">
+        <header class="header">
+            <div class="logo" aria-label="RedStar Club logo" role="img">
+                <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path fill="#e11d48" d="M32 4l6.95 14.09L54 20.36 42.98 31.1 45.24 46 32 38.73 18.76 46 21.02 31.1 10 20.36l15.05-2.27z"/>
+                </svg>
+                <span class="club-name">RedStar Club · Home</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px">
+                <div id="user-chip" style="display:none; align-items:center; gap:8px; padding:6px 10px; border:1px solid rgba(255,255,255,.14); border-radius:12px; background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02))">
+                    <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path fill="#cbd5e1" d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/>
+                    </svg>
+                    <span id="username" class="club-name" style="color:#000000;background:#b36bf6;padding:2px 6px;border-radius:6px"></span>
+                </div>
+                <button class="login-btn login-red" onclick="handleLogout()" aria-label="Log out">Log out</button>
+            </div>
+        </header>
+
+        <section class="content-grid" aria-labelledby="games">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Our Docs</h2>
+                    <button class="hide-btn" onclick="hidePanel('docs-panel')">Hide</button>
+                </div>
+                <a href="docs.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02))">
+                    <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" alt="Documents" width="28" height="28" style="border-radius:6px" aria-hidden="true">
+                    <div style="display:grid;gap:4px">
+                        <span style="color:var(--text);font-weight:600">RedStar Docs</span>
+                        <span style="color:var(--muted);font-size:14px">Some docs about us</span>
+                    </div>
+                    <span style="margin-left:auto;color:var(--muted);font-size:13px">Open ➜</span>
+                </a>
+            </div>
+            <div id="all-panels-hidden-message" style="display: none; text-align: center; padding: 60px 20px; color: var(--muted);">
+                <h2 style="font-size: 24px; margin-bottom: 12px; color: var(--text);">All panels are hidden</h2>
+                <p style="font-size: 16px; margin: 0;">💡 Hint: Refresh the page to show all the panels</p>
+            </div>
+            <div class="panel" id="minecraft-panel" style="display: none;">
+                <div class="panel-header">
+                    <h2 id="games">Minecraft</h2>
+                    <button class="hide-btn" onclick="hidePanel('minecraft-panel')">Hide</button>
+                </div>
+                <div style="position:relative;width:100%;aspect-ratio:4/3;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08)">
+                    <iframe src="https://turbowarp.org/10128407/embed/" title="Paper Minecraft (TurboWarp)" allowfullscreen style="position:absolute;inset:0;border:0;width:100%;height:100%;"></iframe>
+                </div>
+            </div>
+
+                        <div class="panel" id="premium-panel">
+                <div class="panel-header">
+                    <h2>Premium</h2>
+                    <button class="hide-btn" onclick="hidePanel('premium-panel')">Hide</button>
+                </div>
+                <form id="premium-form" style="display:grid;gap:12px;margin-top:10px">
+                    <div style="display:grid;gap:6px">
+                        <label for="card-number" style="font-size:13px;color:var(--muted)">Card Number</label>
+                        <input type="text" id="card-number" placeholder="1234 5678 9012 3456" required style="padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:var(--text);font-size:14px">
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <div style="display:grid;gap:6px">
+                            <label for="expiry" style="font-size:13px;color:var(--muted)">Expiry</label>
+                            <input type="text" id="expiry" placeholder="MM/YY" required style="padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:var(--text);font-size:14px">
+                        </div>
+                        <div style="display:grid;gap:6px">
+                            <label for="cvv" style="font-size:13px;color:var(--muted)">CVV</label>
+                            <input type="text" id="cvv" placeholder="123" required style="padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:var(--text);font-size:14px">
+                        </div>
+                    </div>
+                    <button type="submit" class="login-btn" style="margin-top:6px;background:linear-gradient(180deg,rgba(59,130,246,.28),rgba(59,130,246,.16));border-color:rgba(59,130,246,.35);color:#dbeafe">Pay</button>
+                </form>
+            </div>
+
+            <div class="panel" id="news-panel">
+                <div class="panel-header">
+                    <h2>News</h2>
+                    <button class="hide-btn" onclick="hidePanel('news-panel')">Hide</button>
+                </div>
+                <a href="https://edition.cnn.com" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;text-decoration:none;border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02))">
+                    <img src="https://edition.cnn.com/favicon.ico" alt="CNN" width="28" height="28" style="border-radius:6px">
+                    <div style="display:grid;gap:4px">
+                        <span style="color:var(--text);font-weight:600">CNN International</span>
+                        <span style="color:var(--muted);font-size:14px">Top stories, world news, and live updates</span>
+                        <span style="color:var(--muted);font-size:12px">edition.cnn.com</span>
+                    </div>
+                    <span style="margin-left:auto;color:var(--muted);font-size:13px">Open ➜</span>
+                </a>
+            </div>
+
+            <div class="panel" id="music-panel">
+                <div class="panel-header">
+                    <h2>Music</h2>
+                    <button class="hide-btn" onclick="hidePanel('music-panel')">Hide</button>
+                </div>
+                <a href="https://www.yout-ube.com/watch?v=PekVe2nZ2xU" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;text-decoration:none;border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02))">
+                    <img src="https://www.youtube.com/favicon.ico" alt="YouTube" width="28" height="28" style="border-radius:6px">
+                    <div style="display:grid;gap:4px">
+                        <span style="color:var(--text);font-weight:600">90s Music Hits</span>
+                        <span style="color:var(--muted);font-size:14px">Classic hits from the 90s</span>
+                        <span style="color:var(--muted);font-size:12px">youtube.com</span>
+                    </div>
+                    <span style="margin-left:auto;color:var(--muted);font-size:13px">Open ➜</span>
+                </a>
+            </div>
+
+            <div class="panel" id="free-games-panel">
+                <div class="panel-header">
+                    <h2>Free Games</h2>
+                    <button class="hide-btn" onclick="hidePanel('free-games-panel')">Hide</button>
+                </div>
+                <a href="https://scratch.mit.edu" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;text-decoration:none;border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02))">
+                    <img src="https://scratch.mit.edu/favicon.ico" alt="Scratch" width="28" height="28" style="border-radius:6px">
+                    <div style="display:grid;gap:4px">
+                        <span style="color:var(--text);font-weight:600">Scratch Programming</span>
+                        <span style="color:var(--muted);font-size:14px">Create, share, play</span>
+                        <span style="color:var(--muted);font-size:12px">scratch.mit.edu</span>
+                    </div>
+                    <span style="margin-left:auto;color:var(--muted);font-size:13px">Open ➜</span>
+                </a>
+            </div>
+
+            <div class="panel" id="jokes-panel" style="padding:10px">
+                <div class="panel-header">
+                    <h2>Jokes</h2>
+                    <button class="hide-btn" onclick="hidePanel('jokes-panel')">Hide</button>
+                </div>
+                <p id="joke-text" style="margin:0 0 6px;color:var(--text)">Why did the developer go broke? Because they used up all their cache.</p>
+                <div>
+                    <button class="login-btn" id="new-joke" type="button" aria-label="New joke">Switch joke</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <small>© <span id="year"></span> RedStar Club</small>
+    </footer>
+
+    <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Panel animation sequence
+    (function(){
+      var panels = document.querySelectorAll('.panel');
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      panels.forEach(function(panel) {
+        observer.observe(panel);
+      });
+    })();
+
+    // Hide panel function
+    function hidePanel(panelId) {
+      var panel = document.getElementById(panelId);
+      if (panel) {
+        panel.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        panel.classList.add('hide');
+        
+        // Remove panel from DOM after animation
+        setTimeout(function() {
+          panel.remove();
+          checkAllPanelsHidden();
+        }, 600);
+      }
+    }
+    
+    // Check if all panels are hidden
+    function checkAllPanelsHidden() {
+      var allPanels = document.querySelectorAll('.panel');
+      var hiddenMessage = document.getElementById('all-panels-hidden-message');
+      var visiblePanelsCount = 0;
+      
+      allPanels.forEach(function(panel) {
+        var style = window.getComputedStyle(panel);
+        if (style.display !== 'none' && !panel.classList.contains('hide')) {
+          visiblePanelsCount++;
+        }
+      });
+      
+      if (visiblePanelsCount === 0) {
+        hiddenMessage.style.display = 'block';
+      } else {
+        hiddenMessage.style.display = 'none';
+      }
+    }
+
+    // Handle user authentication and display
+    (function(){
+      try{
+        var params = new URLSearchParams(window.location.search);
+        var identity = params.get('identity');
+        var auth = params.get('auth');
+        var chip = document.getElementById('user-chip');
+        var nameEl = document.getElementById('username');
+        
+        // Check if user is authenticated via guest login
+        if (auth === 'guest' && identity) {
+          // Store the guest user info
+          localStorage.setItem('redstar_user', JSON.stringify({
+            name: identity,
+            auth: 'guest'
+          }));
+        }
+        
+        // Try to get user from localStorage first, then from URL params
+        var userData = localStorage.getItem('redstar_user');
+        var displayName = '';
+        
+        if (userData) {
+          try {
+            var user = JSON.parse(userData);
+            displayName = user.name || identity || 'User';
+          } catch (e) {
+            displayName = identity || 'User';
+          }
+        } else if (identity) {
+          displayName = identity;
+        }
+        
+        if (displayName && chip && nameEl) {
+          nameEl.textContent = displayName;
+          chip.style.display = 'flex';
+          
+          // Hide Minecraft and Premium panels for guest users
+          if (displayName === 'Guest') {
+            var minecraftPanel = document.getElementById('minecraft-panel');
+            var premiumPanel = document.getElementById('premium-panel');
+            
+            if (minecraftPanel) {
+              minecraftPanel.style.display = 'none';
+            }
+            if (premiumPanel) {
+              premiumPanel.style.display = 'none';
+            }
+            
+            // Check if all panels are hidden after hiding guest-restricted panels
+            setTimeout(checkAllPanelsHidden, 100);
+          }
+        }
+      } catch(e) { 
+        console.error('Error handling authentication:', e);
+      }
+    })();
+    
+    // Logout function
+    function handleLogout() {
+      // Clear stored user data
+      localStorage.removeItem('redstar_user');
+      
+      // Redirect to login page
+      window.location.href = 'login.html?logged_out=1';
+    }
+
+    (function(){
+      var jokes = [
+        "Why do programmers prefer dark mode? Because light attracts bugs.",
+        "There are 10 kinds of people: those who understand binary and those who don't.",
+        "I would tell you a UDP joke, but you might not get it.",
+        "A SQL query walks into a bar, walks up to two tables and asks: 'Can I join you?'",
+        "Debugging: Being the detective in a crime movie where you are also the murderer.",
+        "Knock, knock. Race condition. Who's there?",
+        "How many programmers does it take to change a light bulb? None. It's a hardware problem.",
+        "To understand recursion you must first understand recursion.",
+        "A programmer's wife says: 'Go to the store and buy a loaf of bread. If they have eggs, buy a dozen.' He comes home with 13 loaves.",
+        "Real programmers count from 0.",
+        "There's no place like 127.0.0.1.",
+        "I changed my password to 'incorrect' so when I forget it, it says 'Your password is incorrect.'",
+        "Why did the database admin leave his wife? She had one-to-many relationships.",
+        "I would love to change the world, but they won't give me the source code.",
+        "Keyboard not found. Press F1 to continue.",
+        "There are two hard problems in computer science: cache invalidation, naming things, and off-by-one errors.",
+        "It works on my machine.",
+        "Programmer: a machine that turns coffee into code.",
+        "Beware of bugs in the above code; I have only proved it correct, not tried it.",
+        "Life would be so much easier if we had the source code."
+      ];
+      var btn = document.getElementById('new-joke');
+      var text = document.getElementById('joke-text');
+      if(btn && text){
+        btn.addEventListener('click', function(){
+          var idx = Math.floor(Math.random() * jokes.length);
+          text.textContent = jokes[idx];
+        });
+      }
+    })();
+
+    // Premium panel functionality
+    (function(){
+      var form = document.getElementById('premium-form');
+      var panel = document.getElementById('premium-panel');
+      var username = document.getElementById('username');
+      var minecraftPanel = document.getElementById('minecraft-panel');
+      
+      if(form && panel && username){
+        form.addEventListener('submit', function(e){
+          e.preventDefault();
+          
+          // Show success toastr message
+          toastr.success('Thanks for paying $5 for Premium. Enjoy it!', 'Successfully paid Premium!', {
+            timeOut: 5000,
+            extendedTimeOut: 2000,
+            closeButton: true,
+            progressBar: true,
+            positionClass: 'toast-top-right'
+          });
+          
+          // Show Minecraft panel
+          if (minecraftPanel) {
+            minecraftPanel.style.display = 'block';
+            minecraftPanel.classList.add('show');
+          }
+          
+          // Smooth hide animation for premium panel
+          var panelHeight = panel.scrollHeight;
+          panel.style.overflow = 'hidden';
+          panel.style.maxHeight = panelHeight + 'px';
+          panel.style.opacity = '1';
+          panel.style.transform = 'translateY(0)';
+          panel.style.transition = 'opacity .4s ease, max-height .4s ease, transform .4s ease';
+          // trigger transition
+          requestAnimationFrame(function(){
+            panel.style.opacity = '0';
+            panel.style.transform = 'translateY(-6px)';
+            panel.style.maxHeight = '0px';
+          });
+          // finally remove from flow
+          setTimeout(function(){ panel.style.display = 'none'; }, 450);
+          
+          // Add blue star next to username with tooltip
+          var star = document.createElement('span');
+          star.textContent = ' ⭐';
+          star.style.color = '#3b82f6';
+          star.style.fontSize = '16px';
+          star.title = 'Premium';
+          star.setAttribute('aria-label', 'Premium');
+          username.appendChild(star);
+          
+          // Check if all panels are hidden after changes
+          setTimeout(checkAllPanelsHidden, 500);
+        });
+      }
+    })();
+    </script>
+</body>
+</html>
+
+
