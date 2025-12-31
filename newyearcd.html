@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New Year Countdown 🎆</title>
+<style>
+html,body{
+    margin:0;
+    padding:0;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial, sans-serif;
+    color:white;
+}
+
+body{
+    background:linear-gradient(270deg,
+        red,orange,yellow,green,cyan,blue,violet,red);
+    background-size:1600% 1600%;
+    animation:rainbow 20s ease infinite;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+}
+
+@keyframes rainbow{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+#title{
+    position:absolute;
+    top:20px;
+    font-size:42px;
+    font-weight:bold;
+    letter-spacing:3px;
+    text-shadow:0 0 10px white,0 0 30px gold;
+    z-index:10;
+}
+
+#countdown{
+    display:grid;
+    grid-template-columns:repeat(2,160px);
+    gap:20px;
+    z-index:3;
+}
+
+.panel{
+    width:160px;
+    height:160px;
+    background:rgba(0,0,0,0.45);
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    font-size:36px;
+    box-shadow:0 0 25px rgba(255,255,255,0.4);
+}
+
+.value{
+    font-size:44px;
+}
+
+/* Bounce-анимация только для числа */
+.jump{
+    animation:jump 0.5s ease-in-out;
+}
+@keyframes jump{
+    0%{transform:translateY(0)}
+    40%{transform:translateY(-20px)}
+    60%{transform:translateY(-5px)}
+    80%{transform:translateY(2px)}
+    100%{transform:translateY(0)}
+}
+
+.label{
+    font-size:16px;
+    margin-top:6px;
+}
+
+/* Flip 10→1 */
+#flip{
+    position:absolute;
+    perspective:1000px;
+    z-index:6;
+    display:none;
+}
+.flip-card{
+    width:220px;
+    height:240px;
+    background:#111;
+    border-radius:25px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:170px;
+    font-weight:bold;
+    box-shadow:
+        inset 0 -10px 30px rgba(0,0,0,0.7),
+        0 20px 40px rgba(0,0,0,0.8),
+        0 0 70px gold;
+    transform-origin:center top;
+}
+.flip{
+    animation:flip 0.7s ease forwards;
+}
+@keyframes flip{
+    0%{transform:rotateX(0deg)}
+    50%{transform:rotateX(-90deg)}
+    100%{transform:rotateX(0deg)}
+}
+
+/* 3D надпись */
+#happy{
+    position:absolute;
+    display:none;
+    z-index:7;
+    text-align:center;
+    font-size:110px;
+    font-weight:bold;
+    transform:perspective(600px) rotateX(15deg);
+    text-shadow:
+        0 2px 0 #ccc,
+        0 4px 0 #bbb,
+        0 6px 0 #aaa,
+        0 10px 20px rgba(0,0,0,0.8),
+        0 0 40px gold,
+        0 0 100px red;
+    animation:pop 2s ease forwards;
+}
+
+/* Секунды по центру X под сеткой */
+#secondsPanel{
+    position:absolute;
+    bottom:60px;
+    left:50%;
+    transform:translateX(-50%);
+    width:160px;
+    height:160px;
+    background:rgba(0,0,0,0.45);
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    box-shadow:0 0 25px rgba(255,255,255,0.4);
+}
+
+#secondsPanel .value{
+    font-size:44px;
+}
+
+#secondsPanel .label{
+    font-size:16px;
+    margin-top:6px;
+}
+
+canvas{position:fixed;top:0;left:0}
+</style>
+</head>
+<body>
+
+<div id="title">🎄 New Year Countdown 🎄</div>
+
+<canvas id="snow"></canvas>
+<canvas id="fireworks"></canvas>
+
+<div id="flip">
+    <div id="flipCard" class="flip-card"></div>
+</div>
+
+<div id="happy">🎉 С НОВЫМ<br>ГОДОМ! 🎉</div>
+
+<div id="countdown">
+    <div class="panel"><div id="months" class="value">0</div><div class="label">Months</div></div>
+    <div class="panel"><div id="days" class="value">0</div><div class="label">Days</div></div>
+    <div class="panel"><div id="hours" class="value">0</div><div class="label">Hours</div></div>
+    <div class="panel"><div id="minutes" class="value">0</div><div class="label">Minutes</div></div>
+</div>
+
+<div id="secondsPanel"><div id="seconds" class="value">0</div><div class="label">Seconds</div></div>
+
+<audio id="music">
+<source src="https://archive.org/download/AllIWantForChristmasIsYou_201812/All%20I%20Want%20For%20Christmas%20Is%20You.mp3">
+</audio>
+<audio id="boom">
+<source src="https://cdn.pixabay.com/audio/2022/03/15/audio_4c76fa9a07.mp3">
+</audio>
+
+<script>
+// Новый Год
+let target = new Date(new Date().getFullYear()+1,0,1,0,0,0);
+let prev = {};
+let lastShown = null;
+let fireworksActive = false;
+
+// Bounce-анимация только для числа
+function updateJump(id,newValue){
+    const el=document.getElementById(id);
+    if(prev[id]===newValue) return;
+    el.classList.remove("jump");
+    void el.offsetWidth;
+    el.classList.add("jump");
+    setTimeout(()=>{el.textContent=newValue},250);
+    prev[id]=newValue;
+}
+
+// Точное вычисление месяцев, дней, часов, минут, секунд
+function getTimeRemaining(endtime){
+    const now = new Date();
+    let total = endtime - now;
+    if(total < 0) total = 0;
+
+    let months = endtime.getMonth() - now.getMonth() + (endtime.getFullYear()-now.getFullYear())*12;
+    if(now.getDate() > 1) months = Math.max(0, months - 1); // исправление бага "1 месяц"
+
+    const tDays = Math.floor(total / 1000 / 60 / 60 / 24);
+    const hours = Math.floor(total / 1000 / 60 / 60) % 24;
+    const minutes = Math.floor(total / 1000 / 60) % 60;
+    const seconds = Math.floor(total / 1000) % 60;
+
+    return {months, days:tDays, hours, minutes, seconds};
+}
+
+// Обновление таймера
+function updateCountdown(){
+    const t = getTimeRemaining(target);
+
+    updateJump("months", t.months);
+    updateJump("days", t.days);
+    updateJump("hours", t.hours);
+    updateJump("minutes", t.minutes);
+    updateJump("seconds", t.seconds);
+
+    // flip countdown 10-1
+    const diff = Math.floor((target - new Date())/1000);
+    const flipCardContainer = document.getElementById("flip");
+    const flipCard = document.getElementById("flipCard");
+    if(diff <= 10 && diff > 0){
+        if(flipCardContainer.style.display === "none"){
+            flipCardContainer.style.display = "block";
+        }
+        if(lastShown !== diff){
+            flipCard.textContent = diff;
+            flipCard.classList.remove("flip");
+            void flipCard.offsetWidth;
+            flipCard.classList.add("flip");
+            lastShown = diff;
+        }
+    } else {
+        flipCardContainer.style.display = "none";
+    }
+
+    if(diff===0){
+        document.getElementById("music").play().catch(()=>{});
+        fireworksActive=true;
+        document.getElementById("happy").style.display="block";
+    }
+}
+
+updateCountdown();
+setInterval(updateCountdown,1000);
+
+/* ❄️ СНЕГ */
+const snow=document.getElementById("snow");
+const sctx=snow.getContext("2d");
+const fw=document.getElementById("fireworks");
+const fctx=fw.getContext("2d");
+
+function resize(){
+    snow.width=fw.width=innerWidth;
+    snow.height=fw.height=innerHeight;
+}
+resize(); onresize=resize;
+
+let flakes=Array.from({length:260},()=>({
+    x:Math.random()*innerWidth,
+    y:Math.random()*innerHeight,
+    r:Math.random()*3+1,
+    s:Math.random()*2.5+2
+}));
+
+function drawSnow(){
+    sctx.clearRect(0,0,snow.width,snow.height);
+    flakes.forEach(f=>{
+        sctx.beginPath();
+        sctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+        sctx.fillStyle="white";
+        sctx.fill();
+        f.y+=f.s;
+        if(f.y>snow.height){f.y=-5;f.x=Math.random()*snow.width;}
+    });
+    requestAnimationFrame(drawSnow);
+}
+drawSnow();
+
+/* 🎆 ФЕЙЕРВЕРКИ */
+let parts=[];
+function explode(x,y){
+    const boom=document.getElementById("boom");
+    boom.currentTime=0;
+    boom.play().catch(()=>{});
+    for(let i=0;i<80;i++){
+        parts.push({x,y,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,l:80,c:`hsl(${Math.random()*360},100%,60%)`});
+    }
+}
+function fireworks(){
+    fctx.clearRect(0,0,fw.width,fw.height);
+    if(fireworksActive && Math.random()<0.07){
+        explode(Math.random()*fw.width,Math.random()*fw.height/2);
+    }
+    parts.forEach(p=>{
+        fctx.fillStyle=p.c;
+        fctx.fillRect(p.x,p.y,3,3);
+        p.x+=p.vx;p.y+=p.vy;p.l--;
+    });
+    parts=parts.filter(p=>p.l>0);
+    requestAnimationFrame(fireworks);
+}
+fireworks();
+</script>
+</body>
+</html>
