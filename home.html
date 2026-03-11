@@ -96,11 +96,14 @@
                 <span class="club-name">RedStar Club · Home</span>
             </div>
             <div style="display:flex; align-items:center; gap:12px">
-                <div id="user-chip" style="display:none; align-items:center; gap:8px; padding:6px 10px; border:1px solid rgba(255,255,255,.14); border-radius:12px; background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02))">
-                    <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path fill="#cbd5e1" d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/>
-                    </svg>
-                    <span id="username" class="club-name" style="color:#000000;background:#b36bf6;padding:2px 6px;border-radius:6px"></span>
+                <div id="user-chip" style="display:none; flex-direction:column; align-items:flex-end; gap:2px; padding:6px 12px; border:1px solid rgba(255,255,255,.14); border-radius:12px; background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02))">
+                    <div style="display:flex; align-items:center; gap:8px">
+                        <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path fill="#cbd5e1" d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/>
+                        </svg>
+                        <span id="username" class="club-name" style="color:#000000;background:#b36bf6;padding:2px 6px;border-radius:6px;font-size:14px"></span>
+                    </div>
+                    <span id="user-email" style="color:var(--muted);font-size:11px;margin-right:4px"></span>
                 </div>
                 <button class="login-btn login-red" onclick="handleLogout()" aria-label="Log out">Log out</button>
             </div>
@@ -283,36 +286,47 @@
       try{
         var params = new URLSearchParams(window.location.search);
         var identity = params.get('identity');
+        var email = params.get('email');
         var auth = params.get('auth');
         var chip = document.getElementById('user-chip');
         var nameEl = document.getElementById('username');
+        var emailEl = document.getElementById('user-email');
         
-        // Check if user is authenticated via guest login
-        if (auth === 'guest' && identity) {
-          // Store the guest user info
+        // Check if user is authenticated via guest or google login
+        if ((auth === 'guest' || auth === 'google') && identity) {
+          // Store the user info
           localStorage.setItem('redstar_user', JSON.stringify({
             name: identity,
-            auth: 'guest'
+            email: email || '',
+            auth: auth
           }));
         }
         
         // Try to get user from localStorage first, then from URL params
         var userData = localStorage.getItem('redstar_user');
         var displayName = '';
+        var displayEmail = '';
         
         if (userData) {
           try {
             var user = JSON.parse(userData);
             displayName = user.name || identity || 'User';
+            displayEmail = user.email || email || '';
           } catch (e) {
             displayName = identity || 'User';
+            displayEmail = email || '';
           }
         } else if (identity) {
           displayName = identity;
+          displayEmail = email || '';
         }
         
         if (displayName && chip && nameEl) {
           nameEl.textContent = displayName;
+          if (emailEl) {
+            emailEl.textContent = displayEmail;
+            emailEl.style.display = displayEmail ? 'block' : 'none';
+          }
           chip.style.display = 'flex';
           
           // Hide Minecraft and Premium panels for guest users
