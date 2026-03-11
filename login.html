@@ -162,7 +162,10 @@
 
         // Initialize the Token Client when the library loads
         window.onload = function() {
-            // CHECK FOR FILE SYSTEM: Google Auth will NOT work from file:// (double-clicking the .html file)
+            // LOG ORIGIN FOR DEBUGGING
+            console.log('Current Origin:', window.location.origin);
+            
+            // CHECK FOR FILE SYSTEM: Google Auth will NOT work from file://
             if (window.location.protocol === 'file:') {
                 console.warn('Google Sign-In will not work when opening the file directly (file:// protocol). Please use a local server (like Live Server in VS Code).');
             }
@@ -170,7 +173,7 @@
             if (typeof google !== 'undefined') {
                 tokenClient = google.accounts.oauth2.initTokenClient({
                     client_id: GOOGLE_CLIENT_ID,
-                    scope: 'openid profile email', // Simplified scopes
+                    scope: 'openid profile email', 
                     callback: (tokenResponse) => {
                         if (tokenResponse && tokenResponse.access_token) {
                             fetchUserInfo(tokenResponse.access_token);
@@ -178,25 +181,32 @@
                     },
                     error_callback: (err) => {
                         console.error('Token Client Error:', err);
-                        alert('Google Sign-In Error: ' + err.message);
+                        alert(`Google Sign-In Error: ${err.message}\n\nMake sure your origin (${window.location.origin}) is whitelisted in Google Console.`);
                     }
                 });
+            } else {
+                console.error('Google library (gsi/client) not loaded.');
             }
         };
 
         function startGoogleAuth() {
             if (window.location.protocol === 'file:') {
-                alert('ERROR: Google Sign-In does not work if you open the file directly (file://).\n\nYou MUST use a local server like "Live Server" in VS Code or similar to run this project.');
+                alert('ERROR: Google Sign-In does not work on "file://" URLs.\n\nYou MUST use a local server (http:// or https://).');
                 return;
             }
 
             if (typeof google === 'undefined' || !tokenClient) {
-                alert('Google Sign-In is still loading. Please wait a moment and try again.');
+                alert('Google Sign-In is still loading. Please wait or check your internet connection.');
                 return;
             }
             
-            // Request the access token (triggers the popup)
-            tokenClient.requestAccessToken({ prompt: 'consent' }); // Added prompt: consent to be more explicit
+            console.log('Starting Google Auth with Origin:', window.location.origin);
+            
+            // Request the access token
+            tokenClient.requestAccessToken({ 
+                prompt: 'select_account', // Changed from consent to select_account for better UX
+                hint: '' // Optional login hint
+            });
         }
 
         async function fetchUserInfo(accessToken) {
